@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Admin Dashboard - Assessify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: #2b3445;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            color: white;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: 0%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .kpi-icon-wrap {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-right: 1.25rem;
+        }
+
+        .kpi-content {
+            flex: 1;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-label {
+            font-size: 0.95rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Card Colors */
+        .icon-blue { background: #eff6ff; color: #3b82f6; }
+        .icon-green { background: #f0fdf4; color: #10b981; }
+        .icon-purple { background: #f5f3ff; color: #8b5cf6; }
+        .icon-orange { background: #fff7ed; color: #f97316; }
+
+        .styled-card {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.02);
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .styled-card .card-header {
+            padding: 1.5rem;
+            background-color: #fff;
+            border-bottom: 1px solid #f3f4f6;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #111827;
+        }
+
+        .chart-container {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.02);
+            height: 420px;
+            position: relative;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            padding: 1.15rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action-btn:last-child {
+            border-bottom: none;
+        }
+        
+        .quick-action-btn:hover {
+            background-color: #f9fafb;
+            color: #111827;
+            padding-left: 1.75rem;
+        }
+        
+        .quick-action-btn i {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+            background: #f3f4f6;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: navbar}"></div>
+
+<div class="container">
+
+    <!-- Welcome Header -->
+    <div class="dashboard-header d-flex align-items-center">
+        <div class="ms-3" style="z-index: 1;">
+            <div class="badge bg-primary bg-opacity-25 text-info mb-2 px-3 py-1 rounded-pill border border-info border-opacity-25">
+                <i class="bi bi-shield-lock me-1"></i> Admin Portal
+            </div>
+            <h2 class="fw-bold mb-1">Welcome, Admin!</h2>
+            <p class="mb-0 text-white-50 fs-5">Here's a summary of your platform's activity and insights.</p>
+        </div>
+    </div>
+
+    <!-- 1. KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="kpi-icon-wrap icon-blue">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value" th:text="${totalStudents}">0</div>
+                    <div class="kpi-label">Total Students</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="kpi-icon-wrap icon-green">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value" th:text="${totalExams}">0</div>
+                    <div class="kpi-label">Total Exams</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="kpi-icon-wrap icon-purple">
+                    <i class="bi bi-question-circle-fill"></i>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value" th:text="${totalQuestions}">0</div>
+                    <div class="kpi-label">Question Bank</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="kpi-icon-wrap icon-orange">
+                    <i class="bi bi-card-checklist"></i>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value" th:text="${totalSubmissions}">0</div>
+                    <div class="kpi-label">Submissions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Charts and Activity -->
+    <div class="row g-4 mb-5">
+        <!-- Bar Chart -->
+        <div class="col-lg-7">
+            <div class="chart-container">
+                <h5 class="fw-bold mb-4">Exam Submission Volume</h5>
+                <canvas id="submissionsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-5">
+            <div class="styled-card">
+                <div class="card-header">Quick Actions</div>
+                <div class="list-group list-group-flush border-0">
+                    <a th:href="@{/admin/manage-exams}" class="quick-action-btn border-0 border-bottom">
+                        <i class="bi bi-pencil-square text-primary bg-primary bg-opacity-10"></i>Manage Exams
+                    </a>
+                    <a th:href="@{/admin/exam/add}" class="quick-action-btn border-0 border-bottom">
+                        <i class="bi bi-plus-circle-fill text-success bg-success bg-opacity-10"></i>Create New Exam
+                    </a>
+                    <a th:href="@{/admin/groups}" class="quick-action-btn border-0 border-bottom">
+                        <i class="bi bi-diagram-3 text-warning bg-warning bg-opacity-10"></i>Manage Sections
+                    </a>
+                    <a th:href="@{/admin/all-results}" class="quick-action-btn border-0 border-bottom">
+                        <i class="bi bi-card-list text-info bg-info bg-opacity-10"></i>All Student Results
+                    </a>
+                    <a th:href="@{/admin/team}" class="quick-action-btn border-0 border-bottom">
+                        <i class="bi bi-people-fill text-purple bg-purple bg-opacity-10" style="color: #8b5cf6; background: rgba(139, 92, 246, 0.1);"></i>My Admin Team
+                    </a>
+                    <a th:href="@{/admin/create-admin}" class="quick-action-btn border-0">
+                        <i class="bi bi-person-plus-fill text-danger bg-danger bg-opacity-10"></i>Create Admin Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Chart.js Initialization -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const chartLabels = /*[[${chartLabels}]]*/ [];
+    const chartData = /*[[${chartData}]]*/ [];
+
+    if (chartLabels.length > 0) {
+        const ctx = document.getElementById('submissionsChart').getContext('2d');
+        
+        // Create bar gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, '#3b82f6');
+        gradient.addColorStop(1, '#60a5fa');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Submissions',
+                    data: chartData,
+                    backgroundColor: gradient,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        border: { display: false },
+                        ticks: { stepSize: 1, color: '#9ca3af' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { color: '#9ca3af' }
+                    }
+                }
+            }
+        });
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Account - Assessify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: none;
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+        }
+
+        .auth-sidebar {
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            padding: 3rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 40%;
+            position: relative;
+        }
+
+        .auth-sidebar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+        }
+
+        .auth-form-container {
+            padding: 3rem 4rem;
+            width: 60%;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .auth-card {
+                flex-direction: column;
+            }
+            .auth-sidebar {
+                width: 100%;
+                padding: 2rem;
+                text-align: center;
+            }
+            .auth-form-container {
+                width: 100%;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments :: navbar}"></div>
+
+<div class="login-wrapper">
+    <div class="auth-card">
+        
+        <!-- Left Sidebar -->
+        <div class="auth-sidebar d-none d-lg-flex">
+            <h2 class="fw-bold mb-3">Join Assessify</h2>
+            <p class="text-white-50 fs-5 mb-0">Create your student account to access secure exams, instant results, and detailed performance tracking.</p>
+        </div>
+
+        <!-- Right Form -->
+        <div class="auth-form-container">
+            <div class="text-center mb-4 d-lg-none">
+                <h2 class="fw-bold">Join Assessify</h2>
+                <p class="text-muted">Create your student account</p>
+            </div>
+
+            <div th:if="${param.success}" class="alert alert-success rounded-3 border-0 bg-success bg-opacity-10 text-success">
+                <i class="bi bi-check-circle me-2"></i>Registration successful! You can now <a th:href="@{/login}" class="alert-link">login</a>.
+            </div>
+            <div th:if="${fileError}" class="alert alert-danger rounded-3 border-0 bg-danger bg-opacity-10 text-danger" th:text="${fileError}"></div>
+
+            <form th:action="@{/register}" th:object="${user}" method="post" enctype="multipart/form-data">
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="fullName" class="form-label text-muted fw-semibold small text-uppercase">Full Name</label>
+                        <input type="text" class="form-control" id="fullName" th:field="*{fullName}" placeholder="John Doe">
+                        <p th:if="${#fields.hasErrors('fullName')}" class="text-danger small mt-1 mb-0" th:errors="*{fullName}"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="mobileNumber" class="form-label text-muted fw-semibold small text-uppercase">Mobile Number</label>
+                        <input type="tel" class="form-control" id="mobileNumber" th:field="*{mobileNumber}" placeholder="+1 234 567 8900">
+                        <p th:if="${#fields.hasErrors('mobileNumber')}" class="text-danger small mt-1 mb-0" th:errors="*{mobileNumber}"></p>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label text-muted fw-semibold small text-uppercase">Email Address (Login ID)</label>
+                    <input type="email" class="form-control" id="username" th:field="*{username}" placeholder="name@example.com" required>
+                    <p th:if="${#fields.hasErrors('username')}" class="text-danger small mt-1 mb-0" th:errors="*{username}"></p>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="groupId" class="form-label text-muted fw-semibold small text-uppercase">Assigned Section</label>
+                        <select class="form-select" id="groupId" th:field="*{groupId}" required>
+                            <option value="">-- Choose Section --</option>
+                            <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.name}"></option>
+                        </select>
+                        <p th:if="${#fields.hasErrors('groupId')}" class="text-danger small mt-1 mb-0" th:errors="*{groupId}"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="profilePicFile" class="form-label text-muted fw-semibold small text-uppercase">Profile Photo</label>
+                        <input type="file" class="form-control" id="profilePicFile" th:field="*{profilePicFile}" accept="image/png, image/jpeg">
+                        <p th:if="${#fields.hasErrors('profilePicFile')}" class="text-danger small mt-1 mb-0" th:errors="*{profilePicFile}"></p>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="password" class="form-label text-muted fw-semibold small text-uppercase">Password</label>
+                        <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="••••••••" required>
+                        <p th:if="${#fields.hasErrors('password')}" class="text-danger small mt-1 mb-0" th:errors="*{password}"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirmPassword" class="form-label text-muted fw-semibold small text-uppercase">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" placeholder="••••••••" required>
+                        <p th:if="${#fields.hasErrors('confirmPassword')}" class="text-danger small mt-1 mb-0" th:errors="*{confirmPassword}"></p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100">Create Account</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <p class="text-muted mb-0">Already have an account? <a th:href="@{/login}" class="text-decoration-none fw-semibold" style="color: #6d28d9;">Log in</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
