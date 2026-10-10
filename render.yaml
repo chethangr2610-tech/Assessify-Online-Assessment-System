@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: assessify
+    runtime: java
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/online-exam-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: PORT
+        value: 10000
