@@ -1,3 +1,2 @@
-a/mvnw text eol=lf
-*.cmd text eol=crlf
-/target
+mvnw text eol=lf
+mvnw.cmd text eol=crlf
